@@ -1,0 +1,221 @@
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  max-width: none;
+}
+
+.die-button {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f5f7ff;
+
+  padding: 0.8rem 1rem;
+  margin-right: 1em;
+
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+
+
+#die-rolling-area {
+  padding: 3em;
+  margin-top: 1em;
+  margin-bottom: 1em;
+
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(82, 31, 31, 0.06);
+  border-radius: 9px;
+}
+
+.roll-button{
+  flex: 0 0 auto;
+  white-space: nowrap;
+  align-items: flex-start;
+  background: rgba(255, 255, 255, 0.06);
+  color: #f5f7ff;
+  border-radius: 10px;
+
+  padding: 0.55rem 0.9rem;
+  margin-right: 1em;
+
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+.reminder-text {
+  display: block;
+  font-size: 1.3rem;
+  color: #cccccc;
+  margin-bottom: 1em;
+
+}
+
+.roll-row {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: nowrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.modifier-area {
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  margin-bottom: 1em;
+}
+
+.modifier-area h3 {
+  margin: 0 0 12px;
+  font-size: 1.05rem;
+}
+
+.modifier-row {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 12px;
+
+
+  align-items: stretch;
+}
+
+/* First row: 2 items */
+.modifier-row:first-of-type {
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
+}
+
+/* Second row: 3 items */
+.modifier-row:last-of-type {
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+}
+
+
+.field {
+  height: 52px;                
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.12);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+
+.field label {
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.9;
+}
+
+
+.field input:not([type="checkbox"]),
+.field select {
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(0,0,0,0.18);
+  color: inherit;
+}
+
+
+.field input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+
+.field input[type="text"],
+.field input:not([type]) {
+  min-width: 140px;
+}
+
+
+.checkbox-field {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.checkbox-field label {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.checkbox-field input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: currentColor; 
+}
+
+.modifier-row.row-3{
+  display: grid;
+  grid-template-columns: 2fr 1fr auto; 
+  gap: 12px;
+  align-items: stretch;
+}
+
+.field-inline label{
+  margin: 0;
+  white-space: nowrap;
+  opacity: 0.9;
+}
+
+.field-inline input{
+  height: 36px;
+  flex: 1;
+  min-width: 140px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(0,0,0,0.18);
+  color: inherit;
+  outline: none;
+}
+
+.field-inline button{
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.10);
+  color: inherit;
+  cursor: pointer;
+}
+
+.field-inline button:disabled{
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.field-blank{
+  border: none;
+  background: transparent;
+  padding: 0;
+}

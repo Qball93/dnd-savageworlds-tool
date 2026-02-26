@@ -11,14 +11,7 @@ const SessionPage: React.FC = () => {
   const sessionId = useMemo(() => decodeURIComponent(params.sessionId ?? ''), [params.sessionId]);
   const [name, setName] = useState(() => localStorage.getItem('chat_name') ?? '');
 
-  const modifierChunk = {
-    shaken: false,
-    wounded: '0',
-    modifier: '0',
-    wildDie: false,
-    extraD4: false
-  };
-  const [mChunk, setMChunk] = useState(modifierChunk);
+
   const [joined, setJoined] = useState(false);
   const [updates, setUpdates] = useState<SessionUpdatePayload[]>([]);
   const [connected, setConnected] = useState(false);

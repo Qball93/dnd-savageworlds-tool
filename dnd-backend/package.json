@@ -10,6 +10,7 @@
   },
   "keywords": [],
   "author": "",
+  "test": "echo \"No backend tests yet\"",
   "license": "ISC",
   "dependencies": {
     "better-sqlite3": "^12.5.0",

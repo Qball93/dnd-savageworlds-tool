@@ -1,0 +1,106 @@
+# This workflow will build and push a new container image to Amazon ECR,
+# and then will deploy a new task definition to Amazon ECS, when there is a push to the "main" branch.
+#
+# To use this workflow, you will need to complete the following set-up steps:
+#
+# 1. Create an ECR repository to store your images.
+#    For example: `aws ecr create-repository --repository-name my-ecr-repo --region us-east-2`.
+#    Replace the value of the `ECR_REPOSITORY` environment variable in the workflow below with your repository's name.
+#    Replace the value of the `AWS_REGION` environment variable in the workflow below with your repository's region.
+#
+# 2. Create an ECS task definition, an ECS cluster, and an ECS service.
+#    For example, follow the Getting Started guide on the ECS console:
+#      https://us-east-2.console.aws.amazon.com/ecs/home?region=us-east-2#/firstRun
+#    Replace the value of the `ECS_SERVICE` environment variable in the workflow below with the name you set for the Amazon ECS service.
+#    Replace the value of the `ECS_CLUSTER` environment variable in the workflow below with the name you set for the cluster.
+#
+# 3. Store your ECS task definition as a JSON file in your repository.
+#    The format should follow the output of `aws ecs register-task-definition --generate-cli-skeleton`.
+#    Replace the value of the `ECS_TASK_DEFINITION` environment variable in the workflow below with the path to the JSON file.
+#    Replace the value of the `CONTAINER_NAME` environment variable in the workflow below with the name of the container
+#    in the `containerDefinitions` section of the task definition.
+#
+# 4. Store an IAM user access key in GitHub Actions secrets named `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
+#    See the documentation for each action used below for the recommended IAM policies for this IAM user,
+#    and best practices on handling the access key credentials.
+
+name: Deploy to Amazon EC2
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  AWS_REGION: us-east-2                   # set this to your preferred AWS region, e.g. us-west-1
+  S3_BUCKET: dnd-saveageworlds-deploy-qball
+  S3_KEY: releases/dnd-app.tar.gz
+  EC2_INSTANCE_ID: i-02629ef773e0cc289          # set this to the name of the container in the
+                                               # containerDefinitions section of your task definition
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install backend deps
+        working-directory: dnd-backend
+        run: npm ci
+
+      - name: Test backend
+        working-directory: dnd-backend
+        run: npm test --if-present
+
+      - name: Install frontend deps
+        working-directory: dnd-frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: dnd-frontend
+        run: npm run build
+
+      - name: Package artifact
+        run: |
+          mkdir -p artifact
+          cp -R dnd-frontend/dist artifact/dnd-frontend-dist
+          cp -R dnd-backend artifact/dnd-backend
+          tar -czf dnd-app.tar.gz -C artifact .
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::<ACCOUNT_ID>:role/<GITHUB_OIDC_ROLE_NAME>
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Upload artifact to S3
+        run: aws s3 cp dnd-app.tar.gz s3://${{ env.S3_BUCKET }}/${{ env.S3_KEY }}
+
+      - name: Deploy on EC2 via SSM
+        run: |
+          aws ssm send-command \
+            --document-name "AWS-RunShellScript" \
+            --targets "Key=instanceids,Values=${{ env.EC2_INSTANCE_ID }}" \
+            --comment "Deploy dnd app from GitHub Actions" \
+            --parameters commands='[
+              "set -e",
+              "mkdir -p /opt/dnd-app/releases",
+              "aws s3 cp s3://'${{ env.S3_BUCKET }}'/'${{ env.S3_KEY }}' /opt/dnd-app/releases/dnd-app.tar.gz",
+              "rm -rf /opt/dnd-app/dnd-frontend-dist /opt/dnd-app/dnd-backend",
+              "tar -xzf /opt/dnd-app/releases/dnd-app.tar.gz -C /opt/dnd-app",
+              "cd /opt/dnd-app/dnd-backend && npm ci --omit=dev",
+              "pm2 startOrRestart /opt/dnd-app/ecosystem.config.cjs",
+              "pm2 save",
+              "mkdir -p /var/www/dnd-app",
+              "cp -R /opt/dnd-app/dnd-frontend-dist/* /var/www/dnd-app/"
+            ]'

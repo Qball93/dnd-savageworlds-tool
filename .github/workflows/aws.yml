@@ -80,7 +80,7 @@ jobs:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::i-02629ef773e0cc289:role/gitgub-actions
+          role-to-assume: arn:aws:iam::822329039010:role/gitgub-actions
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Upload artifact to S3
